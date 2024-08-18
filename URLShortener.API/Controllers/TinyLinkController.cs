@@ -1,65 +1,39 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TinyLink.API.Infrastrucure;
 using TinyLink.API.Models;
-using TinyLink.API.Models.Entities;
 using TinyLink.API.Services;
 
 namespace TinyLink.API.Controllers
 {
     [ApiController]
-    public class TinyLinkController(ApplicationDbContext _dbContext) : ControllerBase
+    public class TinyLinkController(ITinyLinkService _tinyLinkService) : ControllerBase
     {
         [HttpPost]
         [Route("CreateTinyLink")]
-        public IActionResult CreateTinyLink(CreateTinyLinkRequest createTinyLink)
+        public async Task<IActionResult> CreateTinyLink(CreateTinyLinkRequest createTinyLink)
         {
-            var link = new TinyLinkService().CreateTinyLink(new CreateTinyLinkCommand
+            var command = new CreateTinyLinkCommand
             {
                 OriginalUrl = createTinyLink.OriginalUrl,
-            });
-
-            var response = _dbContext.Links.Add(link);
-            _dbContext.SaveChanges();
-            return Ok(response.Entity);
+            };
+            var tinyLink = await _tinyLinkService.CreateTinyLink(command);
+            return Ok(tinyLink);
         }
 
         [HttpGet]
         [Route("QueryTinyLink")]
-        public IActionResult QueryTinyLink(TinyLinkRequest q)
+        public async Task<IActionResult> QueryTinyLink(TinyLinkRequest tinyLinkRequest)
         {
-            var hash = q.TinyLink.Split("/").Last();
-            var tinyLink = _dbContext.Links.FirstOrDefault(x => x.Hash == hash);
+            var iPAddress = GetClientIpAddress(HttpContext);
+            var device = HttpContext.Request.Headers["User-Agent"];
 
-            var ipAddress = GetClientIpAddress(HttpContext);
-            string userAgent = HttpContext.Request.Headers["User-Agent"];
-
-            if (_dbContext.Visits.Any(
-                x => x.LinkId == tinyLink.Id &&
-                x.IPAddress == ipAddress &&
-                x.Device == userAgent
-                )
-            )
+            var orignalLink = await _tinyLinkService.GetOriginalLink(new TinyLinkQuery
             {
-                var visit = _dbContext.Visits.First(
-                x => x.LinkId == tinyLink.Id &&
-                x.IPAddress == ipAddress &&
-                x.Device == userAgent);
+                Device = device,
+                IPAddress = iPAddress,
+                TinyLink = tinyLinkRequest.TinyLink,
 
-                visit.Count++;
-                visit.ModeifiedDateTime = DateTime.UtcNow;
-                _dbContext.SaveChanges();
-                return Redirect(tinyLink.OriginalUrl);
-            }
-
-            _dbContext.Visits.Add(new Visit
-            {
-                LinkId = tinyLink.Id,
-                Device = userAgent,
-                IPAddress = ipAddress,
-                Count = 1,
             });
-            _dbContext.SaveChanges();
-            return Redirect(tinyLink.OriginalUrl);
+            return Redirect(orignalLink);
         }
         private string GetClientIpAddress(HttpContext httpContext)
         {

@@ -1,9 +1,8 @@
 ﻿namespace TinyLink.API.Models
 {
-    public class TinyLinkQuery
+    public class VisitQuery
     {
-        public string TinyLink { get; set; }
-
+        public Guid LinkId { get; set; }
         public string Device { get; set; }
         public string IPAddress { get; set; }
     }

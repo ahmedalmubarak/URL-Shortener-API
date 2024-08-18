@@ -1,17 +1,33 @@
-﻿using TinyLink.API.Models.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using TinyLink.API.Models.Entities;
 
 namespace TinyLink.API.Infrastrucure.Repository
 {
-    public class TinyLinkRepositry : ITinyLinkRepository
+    public class TinyLinkRepositry(ApplicationDbContext _dbContext) : ITinyLinkRepository
     {
-        public Task<Link> AddLink(Link link)
+        public async Task<Link> AddLink(Link link)
         {
-            throw new NotImplementedException();
+            var response = await _dbContext.Links.AddAsync(link);
+            await SaveChangesAsync();
+            return response.Entity;
+
         }
 
-        public Task<Link> GetTinyLink(string tinyLink)
+        public Task<Link> GetTinyLinkByHash(string hash)
         {
-            throw new NotImplementedException();
+            return _dbContext.Links.FirstOrDefaultAsync(x => x.Hash == hash);
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await _dbContext.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Link> UpdateLink(Link link)
+        {
+            var response = _dbContext.Links.Update(link);
+            await SaveChangesAsync();
+            return response.Entity;
         }
     }
 }
