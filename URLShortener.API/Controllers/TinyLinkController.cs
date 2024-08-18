@@ -23,24 +23,24 @@ namespace TinyLink.API.Controllers
         [Route("QueryTinyLink")]
         public async Task<IActionResult> QueryTinyLink(TinyLinkRequest tinyLinkRequest)
         {
-            var iPAddress = GetClientIpAddress(HttpContext);
-            var device = HttpContext.Request.Headers["User-Agent"];
+            var ipAddress = GetClientIpAddress(HttpContext);
+            var userAgent = HttpContext.Request.Headers["User-Agent"];
 
-            var orignalLink = await _tinyLinkService.GetOriginalLink(new TinyLinkQuery
+            var query = new TinyLinkQuery
             {
-                Device = device,
-                IPAddress = iPAddress,
+                Device = userAgent,
+                IPAddress = ipAddress,
                 TinyLink = tinyLinkRequest.TinyLink,
 
-            });
-            return Redirect(orignalLink);
+            };
+            await _tinyLinkService.RecordVisits(query);
+            var originalTinyLink = await _tinyLinkService.GetOriginalLink(query);
+            return Redirect(originalTinyLink);
         }
         private string GetClientIpAddress(HttpContext httpContext)
         {
-            //Try to get client IP address from the X-Real-IP header
             var clientIp = httpContext.Request.Headers["X-Real-IP"].ToString();
 
-            //If the X-Real-IP header is not present, fall back to the RemoteIpAddress property
             if (string.IsNullOrEmpty(clientIp))
             {
                 clientIp = httpContext.Connection.RemoteIpAddress.ToString();
