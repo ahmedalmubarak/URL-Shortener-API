@@ -10,6 +10,7 @@ namespace TinyLink.API.Infrastrucure
 
         public IVisitRepository VisitRepository { get; private set; }
 
+
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;

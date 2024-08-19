@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using TinyLink.API.Models;
 using TinyLink.API.Services;
 
-namespace TinyLink.API.Controllers
+namespace TinyLink.API.Controllers.V1
 {
+    [ApiVersion(1)]
+    [Route("api/v{version:apiVersion}")]
     [ApiController]
     public class TinyLinkController(ITinyLinkService _tinyLinkService) : ControllerBase
     {
