@@ -1,16 +1,21 @@
-﻿using TinyLink.API.Infrastrucure.Repository;
+﻿using TinyLink.API.Infrastrucure;
 using TinyLink.API.Models;
 using TinyLink.API.Models.Entities;
 using TinyLink.API.Utilities;
 
 namespace TinyLink.API.Services
 {
-    public class TinyLinkService
-        (
-        IVisitRepository _visitRepository,
-        ITinyLinkRepository _tinyLinkRepository
-        ) : ITinyLinkService
+    public class TinyLinkService : ITinyLinkService
+
+
     {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public TinyLinkService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
         private string baseUrl = "https://localhost:7119/";
         public async Task<Link> CreateTinyLink(CreateTinyLinkCommand command)
         {
@@ -21,20 +26,21 @@ namespace TinyLink.API.Services
                 Hash = hash,
                 ShortenedUrl = $"{baseUrl}{hash}"
             };
-            var tinyLink = await _tinyLinkRepository.GetTinyLinkByHash(hash);
+            var tinyLink = await _unitOfWork.LinkRepository.GetTinyLinkByHash(hash);
             if (tinyLink is not null)
             {
                 return tinyLink;
             }
-            var response = await _tinyLinkRepository.AddLink(link);
+            var response = await _unitOfWork.LinkRepository.Add(link);
+            await _unitOfWork.Complete();
             return response;
         }
         public async Task RecordVisits(TinyLinkQuery query)
         {
             var hash = query.TinyLink.Split("/").Last();
-            var tinyLink = await _tinyLinkRepository.GetTinyLinkByHash(hash) ??
+            var tinyLink = await _unitOfWork.LinkRepository.GetTinyLinkByHash(hash) ??
                 throw new ArgumentException("Tiny Link not found!");
-            var visit = await _visitRepository.GetVisitByQuery(new VisitQuery
+            var visit = await _unitOfWork.VisitRepository.GetVisitByQuery(new VisitQuery
             {
                 LinkId = tinyLink.Id,
                 Device = query.Device,
@@ -43,23 +49,25 @@ namespace TinyLink.API.Services
             });
             if (visit is null)
             {
-                await _visitRepository.AddVisit(new Visit
+                await _unitOfWork.VisitRepository.Add(new Visit
                 {
                     LinkId = tinyLink.Id,
                     Device = query.Device,
                     IPAddress = query.IPAddress,
                     Count = 1,
                 });
+                await _unitOfWork.Complete();
                 return;
             }
             visit.Count++;
             visit.ModeifiedDateTime = DateTime.UtcNow;
-            await _visitRepository.UpdateVisit(visit);
+            await _unitOfWork.VisitRepository.Update(visit);
+            await _unitOfWork.Complete();
         }
         public async Task<string> GetOriginalLink(TinyLinkQuery query)
         {
             var hash = query.TinyLink.Split("/").Last();
-            var tinyLink = await _tinyLinkRepository.GetTinyLinkByHash(hash) ??
+            var tinyLink = await _unitOfWork.LinkRepository.GetTinyLinkByHash(hash) ??
                 throw new ArgumentException("Tiny Link not found!");
 
             return tinyLink.OriginalUrl;

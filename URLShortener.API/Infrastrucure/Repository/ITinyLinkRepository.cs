@@ -2,11 +2,8 @@
 
 namespace TinyLink.API.Infrastrucure.Repository
 {
-    public interface ITinyLinkRepository
+    public interface ITinyLinkRepository : IBaseRepository<Link>
     {
-        Task<Link> AddLink(Link link);
         Task<Link> GetTinyLinkByHash(string hash);
-        Task<bool> SaveChangesAsync();
-        Task<Link> UpdateLink(Link link);
     }
 }

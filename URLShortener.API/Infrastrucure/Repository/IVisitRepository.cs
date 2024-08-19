@@ -3,13 +3,8 @@ using TinyLink.API.Models.Entities;
 
 namespace TinyLink.API.Infrastrucure.Repository
 {
-    public interface IVisitRepository
+    public interface IVisitRepository : IBaseRepository<Visit>
     {
-
-        Task<Visit> AddVisit(Visit visit);
         Task<Visit> GetVisitByQuery(VisitQuery query);
-        Task<bool> SaveChangesAsync();
-        Task<Visit> UpdateVisit(Visit visit);
-
     }
 }

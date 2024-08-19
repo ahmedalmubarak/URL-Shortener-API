@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using TinyLink.API.Infrastrucure;
-using TinyLink.API.Infrastrucure.Repository;
 using TinyLink.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,8 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-builder.Services.AddScoped<ITinyLinkRepository, TinyLinkRepositry>();
-builder.Services.AddScoped<IVisitRepository, VisitRepository>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITinyLinkService, TinyLinkService>();
 var app = builder.Build();
 

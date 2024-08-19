@@ -4,15 +4,15 @@ using TinyLink.API.Models.Entities;
 
 namespace TinyLink.API.Infrastrucure.Repository
 {
-    public class VisitRepository(ApplicationDbContext _dbContext) : IVisitRepository
+    public class VisitRepository : BaseRepository<Visit>, IVisitRepository
     {
-        public async Task<Visit> AddVisit(Visit visit)
-        {
-            var response = await _dbContext.Visits.AddAsync(visit);
-            SaveChangesAsync();
-            return response.Entity;
+        protected ApplicationDbContext _dbContext;
 
+        public VisitRepository(ApplicationDbContext dbContext) : base(dbContext)
+        {
+            _dbContext = dbContext;
         }
+
 
         public Task<Visit> GetVisitByQuery(VisitQuery query)
         {
@@ -22,17 +22,5 @@ namespace TinyLink.API.Infrastrucure.Repository
                 x.Device == query.Device);
         }
 
-        public async Task<bool> SaveChangesAsync()
-        {
-            return await _dbContext.SaveChangesAsync() > 0;
-        }
-
-        public async Task<Visit> UpdateVisit(Visit visit)
-        {
-            var response = _dbContext.Visits.Update(visit);
-            await SaveChangesAsync();
-            return response.Entity;
-
-        }
     }
 }
