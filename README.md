@@ -1,6 +1,6 @@
 Here is a `README.md` file for the [URL Shortener API](https://github.com/ahmedalmubarak/URL-Shortener-API) repository:
 
-```markdown
+
 # URL Shortener API
 
 A simple and efficient URL Shortener API that allows users to shorten long URLs into manageable, tiny links. This API is built with `.NET 7`, providing both HTTP and HTTPS endpoints for query and management of shortened URLs.
@@ -9,19 +9,18 @@ A simple and efficient URL Shortener API that allows users to shorten long URLs 
 
 - Shorten long URLs to compact links.
 - Redirect to the original URL via a shortened link.
-- Built with .NET 7 for high performance and scalability.
 - RESTful API design.
 
 ## Technologies Used
 
-- **Backend:** .NET 7
+- **Backend:** .NET 8
 - **Database:** SQL Server
 - **Hosting:** Kestrel
 - **Others:** Dependency Injection, Logging, Exception Handling
 
 ## Prerequisites
 
-- [.NET 7 SDK](https://dotnet.microsoft.com/download/dotnet/7.0)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 
 ## Installation
