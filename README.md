@@ -1,6 +1,3 @@
-Here is a `README.md` file for the [URL Shortener API](https://github.com/ahmedalmubarak/URL-Shortener-API) repository:
-
-
 # URL Shortener API
 
 A simple and efficient URL Shortener API that allows users to shorten long URLs into manageable, tiny links. This API is built with `.NET 7`, providing both HTTP and HTTPS endpoints for query and management of shortened URLs.
