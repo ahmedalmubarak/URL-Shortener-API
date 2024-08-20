@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TinyLink.API.Models;
 using TinyLink.API.Services;
+using TinyLink.API.Utilities;
 
 namespace TinyLink.API.Controllers.V1
 {
@@ -26,7 +27,7 @@ namespace TinyLink.API.Controllers.V1
         [Route("QueryTinyLink")]
         public async Task<IActionResult> QueryTinyLink(TinyLinkRequest tinyLinkRequest)
         {
-            var ipAddress = GetClientIpAddress(HttpContext);
+            var ipAddress = GetIpAddressHelper.GetClientIpAddress(HttpContext);
             var userAgent = HttpContext.Request.Headers["User-Agent"];
 
             var query = new TinyLinkQuery
@@ -40,15 +41,6 @@ namespace TinyLink.API.Controllers.V1
             var originalTinyLink = await _tinyLinkService.GetOriginalLink(query);
             return Redirect(originalTinyLink);
         }
-        private string GetClientIpAddress(HttpContext httpContext)
-        {
-            var clientIp = httpContext.Request.Headers["X-Real-IP"].ToString();
 
-            if (string.IsNullOrEmpty(clientIp))
-            {
-                clientIp = httpContext.Connection.RemoteIpAddress.ToString();
-            }
-            return clientIp;
-        }
     }
 }
